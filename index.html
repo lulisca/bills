@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle Financeiro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161920;
+    --surface2: #1e2130;
+    --border: #2a2d3e;
+    --text: #e8eaf0;
+    --muted: #6b7080;
+    --green: #2dce7a;
+    --green-dim: rgba(45,206,122,0.12);
+    --red: #ff5c5c;
+    --red-dim: rgba(255,92,92,0.12);
+    --gold: #f5a623;
+    --gold-dim: rgba(245,166,35,0.12);
+    --blue: #5b8dee;
+    --blue-dim: rgba(91,141,238,0.12);
+    --purple: #a78bfa;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 20px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .header h1 span { color: var(--green); }
+
+  .sync-btn {
+    background: var(--green-dim);
+    border: 1px solid rgba(45,206,122,0.3);
+    color: var(--green);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .2s;
+  }
+  .sync-btn:hover { background: rgba(45,206,122,0.2); }
+  .sync-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ── CARDS TOPO ── */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .card-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+  }
+  .card-value.green { color: var(--green); }
+  .card-value.red   { color: var(--red); }
+  .card-value.gold  { color: var(--gold); }
+  .card-value.blue  { color: var(--blue); }
+
+  /* ── MAIN CONTENT ── */
+  .container { padding: 20px; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 24px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── BUDGET ROWS ── */
+  .budget-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .budget-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .budget-name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .budget-amounts {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    text-align: right;
+  }
+  .budget-spent { color: var(--red); }
+  .budget-remaining { color: var(--green); font-size: 14px; font-weight: 500; }
+  .budget-bar-bg {
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .budget-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+  .budget-orcamento {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── INPUT RENDA ── */
+  .renda-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .renda-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .renda-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--blue);
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 8px 12px;
+    text-align: right;
+    width: 160px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .renda-input:focus { border-color: var(--blue); }
+
+  .fixo-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--blue);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    padding: 6px 10px;
+    width: 120px;
+    text-align: right;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .fixo-input:focus { border-color: var(--blue); }
+
+  /* ── ADD GASTO ── */
+  .add-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .add-form h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .form-field label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .form-field input, .form-field select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+    width: 100%;
+    transition: border-color .2s;
+  }
+  .form-field input:focus, .form-field select:focus { border-color: var(--green); }
+  .form-field select option { background: var(--surface2); }
+
+  .desc-field { grid-column: 1 / -1; }
+
+  .add-btn {
+    width: 100%;
+    background: var(--green);
+    color: #0d0f14;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all .2s;
+  }
+  .add-btn:hover { background: #25b568; transform: translateY(-1px); }
+  .add-btn:active { transform: translateY(0); }
+
+  /* ── LANCAMENTOS ── */
+  .lancamento {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    animation: slideIn 0.2s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .lanc-left { flex: 1; min-width: 0; }
+  .lanc-desc {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lanc-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .lanc-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .lanc-valor {
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--red);
+  }
+  .lanc-del {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px;
+    transition: color .2s;
+    line-height: 1;
+  }
+  .lanc-del:hover { color: var(--red); }
+
+  /* ── STATUS TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--green);
+    transition: transform 0.3s ease;
+    z-index: 200;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 24px 0;
+  }
+
+  /* ── CONFIG MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 300;
+    align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 24px 20px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  .modal h2 {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .modal p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    font-family: 'DM Mono', monospace;
+  }
+  .modal-field {
+    margin-bottom: 14px;
+  }
+  .modal-field label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .modal-field input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+  }
+  .modal-field input:focus { border-color: var(--blue); }
+  .modal-btns {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .modal-btns button {
+    flex: 1;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all .2s;
+  }
+  .btn-cancel {
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border) !important;
+  }
+  .btn-save {
+    background: var(--blue);
+    color: #fff;
+  }
+
+  .config-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+
+  @media (min-width: 600px) {
+    .container { max-width: 520px; margin: 0 auto; }
+    .header > div { max-width: 520px; margin: 0 auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-top">
+      <h1>💰 <span>Grana</span></h1>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="config-btn" onclick="openConfig()">⚙ config</button>
+        <button class="sync-btn" onclick="syncData()">
+          <span class="sync-dot"></span> salvo
+        </button>
+      </div>
+    </div>
+    <div class="cards" id="cards">
+      <div class="card">
+        <div class="card-label">Renda</div>
+        <div class="card-value blue" id="card-renda">R$ 0</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Gasto</div>
+        <div class="card-value red" id="card-gasto">R$ 0</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Saldo livre</div>
+        <div class="card-value green" id="card-saldo">R$ 0</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Economia</div>
+        <div class="card-value gold" id="card-economia">R$ 0</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- RENDA -->
+  <div class="section-title">Renda do mês</div>
+  <div class="renda-row">
+    <span class="renda-label">💵 Renda total</span>
+    <input class="renda-input" type="number" id="renda-input" placeholder="1333.00" step="0.01" oninput="saveAndRecalc()">
+  </div>
+
+  <!-- GASTOS FIXOS -->
+  <div class="section-title">Gastos fixos</div>
+  <div id="fixos-list"></div>
+
+  <!-- ORÇAMENTO VARIÁVEIS -->
+  <div class="section-title">Orçamento variáveis</div>
+  <div id="budget-list"></div>
+
+  <!-- NOVO GASTO -->
+  <div class="section-title">Lançar gasto</div>
+  <div class="add-form">
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Categoria</label>
+        <select id="novo-cat"></select>
+      </div>
+      <div class="form-field">
+        <label>Valor (R$)</label>
+        <input type="number" id="novo-valor" placeholder="0,00" step="0.01" min="0">
+      </div>
+      <div class="form-field desc-field">
+        <label>Descrição (opcional)</label>
+        <input type="text" id="novo-desc" placeholder="ex: feira do sábado">
+      </div>
+    </div>
+    <button class="add-btn" onclick="addLancamento()">+ Adicionar gasto</button>
+  </div>
+
+  <!-- LANÇAMENTOS -->
+  <div class="section-title">Lançamentos</div>
+  <div id="lancamentos-list"></div>
+
+</div>
+
+<!-- CONFIG MODAL -->
+<div class="modal-overlay" id="config-modal" onclick="closeConfigOnOverlay(event)">
+  <div class="modal">
+    <h2>⚙ Configuração</h2>
+    <p>Cole sua API Key do JSONBin para salvar na nuvem</p>
+    <div class="modal-field">
+      <label>JSONBin Master Key</label>
+      <input type="password" id="jsonbin-key" placeholder="$2a$10$...">
+    </div>
+    <div class="modal-field">
+      <label>Bin ID (deixe vazio na 1ª vez)</label>
+      <input type="text" id="jsonbin-binid" placeholder="será criado automaticamente">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeConfig()">Cancelar</button>
+      <button class="btn-save" onclick="saveConfig()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── ESTADO ──────────────────────────────────────────────────────────────────
+const CATS_VARIAVEIS = [
+  { id: 'mercado',  nome: '🛒 Mercado/Alimentação', orc: 350,  cor: '#5b8dee' },
+  { id: 'lazer',    nome: '🎉 Lazer',                orc: 500,  cor: '#a78bfa' },
+  { id: 'bota',     nome: '👢 Bota',                 orc: 150,  cor: '#f5a623' },
+  { id: 'airbnb',   nome: '✈️ Airbnb',               orc: 183,  cor: '#2dce7a' },
+  { id: 'economia', nome: '💾 Economia',              orc: 100,  cor: '#2dce7a' },
+];
+
+const CATS_FIXOS = [
+  { id: 'seguro',   nome: '🛡️ Seguro'   },
+  { id: 'gasolina', nome: '⛽ Gasolina'  },
+  { id: 'dizimo',   nome: '🙏 Dízimo'    },
+  { id: 'mei',      nome: '🏢 MEI'       },
+];
+
+let state = {
+  renda: 1333,
+  fixos: { seguro: 0, gasolina: 0, dizimo: 0, mei: 0 },
+  orcamentos: { mercado: 350, lazer: 500, bota: 150, airbnb: 183, economia: 100 },
+  lancamentos: [],
+};
+
+// ── LOCAL STORAGE ────────────────────────────────────────────────────────────
+function loadLocal() {
+  try {
+    const s = localStorage.getItem('grana_state');
+    if (s) state = JSON.parse(s);
+  } catch(e) {}
+}
+
+function saveLocal() {
+  localStorage.setItem('grana_state', JSON.stringify(state));
+}
+
+// ── JSONBIN ──────────────────────────────────────────────────────────────────
+function getConfig() {
+  return {
+    key: localStorage.getItem('jsonbin_key') || '',
+    binId: localStorage.getItem('jsonbin_binid') || '',
+  };
+}
+
+async function syncData() {
+  const { key, binId } = getConfig();
+  if (!key) { showToast('⚙ Configure o JSONBin primeiro'); openConfig(); return; }
+
+  const btn = document.querySelector('.sync-btn');
+  btn.textContent = '⟳ salvando...';
+
+  try {
+    let url, method;
+    if (!binId) {
+      url = 'https://api.jsonbin.io/v3/b';
+      method = 'POST';
+    } else {
+      url = `https://api.jsonbin.io/v3/b/${binId}`;
+      method = 'PUT';
+    }
+
+    const res = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': key,
+        'X-Bin-Name': 'grana',
+        'X-Bin-Private': 'true',
+      },
+      body: JSON.stringify(state),
+    });
+
+    const data = await res.json();
+    if (!binId && data.metadata?.id) {
+      localStorage.setItem('jsonbin_binid', data.metadata.id);
+    }
+
+    showToast('✓ Salvo na nuvem');
+    btn.innerHTML = '<span class="sync-dot"></span> salvo';
+  } catch(e) {
+    showToast('✗ Erro ao salvar');
+    btn.innerHTML = '<span class="sync-dot"></span> salvo';
+  }
+}
+
+async function loadFromCloud() {
+  const { key, binId } = getConfig();
+  if (!key || !binId) return;
+
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+      headers: { 'X-Master-Key': key }
+    });
+    const data = await res.json();
+    if (data.record) {
+      state = data.record;
+      saveLocal();
+      renderAll();
+      showToast('✓ Dados carregados da nuvem');
+    }
+  } catch(e) {}
+}
+
+// ── CÁLCULOS ─────────────────────────────────────────────────────────────────
+function totalFixos() {
+  return Object.values(state.fixos).reduce((a, b) => a + (parseFloat(b) || 0), 0);
+}
+
+function gastosPorCat(catId) {
+  return state.lancamentos
+    .filter(l => l.cat === catId)
+    .reduce((a, l) => a + l.valor, 0);
+}
+
+function totalVariaveis() {
+  return state.lancamentos.reduce((a, l) => a + l.valor, 0);
+}
+
+function totalGasto() {
+  return totalFixos() + totalVariaveis();
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function fmt(v) {
+  return 'R$ ' + (parseFloat(v) || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function renderCards() {
+  const renda = parseFloat(state.renda) || 0;
+  const gasto = totalGasto();
+  const saldo = renda - gasto;
+  const eco   = gastosPorCat('economia');
+
+  document.getElementById('card-renda').textContent   = fmt(renda);
+  document.getElementById('card-gasto').textContent   = fmt(gasto);
+  document.getElementById('card-saldo').textContent   = fmt(saldo);
+  document.getElementById('card-saldo').className     = 'card-value ' + (saldo >= 0 ? 'green' : 'red');
+  document.getElementById('card-economia').textContent = fmt(eco);
+}
+
+function renderFixos() {
+  const el = document.getElementById('fixos-list');
+  el.innerHTML = CATS_FIXOS.map(cat => `
+    <div class="renda-row">
+      <span class="renda-label">${cat.nome}</span>
+      <input class="fixo-input" type="number" step="0.01" min="0"
+        value="${state.fixos[cat.id] || ''}"
+        placeholder="0,00"
+        oninput="state.fixos['${cat.id}']=parseFloat(this.value)||0; saveAndRecalc()">
+    </div>
+  `).join('');
+}
+
+function renderBudget() {
+  const el = document.getElementById('budget-list');
+  el.innerHTML = CATS_VARIAVEIS.map(cat => {
+    const orc   = state.orcamentos[cat.id] || 0;
+    const gasto = gastosPorCat(cat.id);
+    const rest  = orc - gasto;
+    const pct   = orc > 0 ? Math.min(100, (gasto / orc) * 100) : 0;
+    const cor   = pct >= 100 ? '#ff5c5c' : pct >= 80 ? '#f5a623' : cat.cor;
+    return `
+      <div class="budget-row">
+        <div class="budget-top">
+          <span class="budget-name">${cat.nome}</span>
+          <div class="budget-amounts">
+            <div class="budget-spent">- ${fmt(gasto)}</div>
+            <div class="budget-remaining">${fmt(rest)}</div>
+          </div>
+        </div>
+        <div class="budget-bar-bg">
+          <div class="budget-bar-fill" style="width:${pct}%;background:${cor}"></div>
+        </div>
+        <div class="budget-orcamento">orçamento: ${fmt(orc)}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderLancamentos() {
+  const el = document.getElementById('lancamentos-list');
+  if (!state.lancamentos.length) {
+    el.innerHTML = '<div class="empty">nenhum gasto lançado ainda</div>';
+    return;
+  }
+  const sorted = [...state.lancamentos].reverse();
+  el.innerHTML = sorted.map((l, ri) => {
+    const i = state.lancamentos.length - 1 - ri;
+    const cat = CATS_VARIAVEIS.find(c => c.id === l.cat) || CATS_FIXOS.find(c => c.id === l.cat);
+    return `
+      <div class="lancamento">
+        <div class="lanc-left">
+          <div class="lanc-desc">${l.desc || cat?.nome || l.cat}</div>
+          <div class="lanc-meta">${cat?.nome || l.cat} · ${l.data}</div>
+        </div>
+        <div class="lanc-right">
+          <span class="lanc-valor">- ${fmt(l.valor)}</span>
+          <button class="lanc-del" onclick="delLancamento(${i})">✕</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderCatSelect() {
+  const sel = document.getElementById('novo-cat');
+  const allCats = [...CATS_FIXOS, ...CATS_VARIAVEIS];
+  sel.innerHTML = allCats.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+}
+
+function renderAll() {
+  document.getElementById('renda-input').value = state.renda || '';
+  renderCards();
+  renderFixos();
+  renderBudget();
+  renderLancamentos();
+}
+
+// ── ACTIONS ──────────────────────────────────────────────────────────────────
+function saveAndRecalc() {
+  const ri = document.getElementById('renda-input');
+  if (ri) state.renda = parseFloat(ri.value) || 0;
+  saveLocal();
+  renderCards();
+  renderBudget();
+}
+
+function addLancamento() {
+  const cat   = document.getElementById('novo-cat').value;
+  const valor = parseFloat(document.getElementById('novo-valor').value);
+  const desc  = document.getElementById('novo-desc').value.trim();
+
+  if (!valor || valor <= 0) { showToast('⚠ Digite um valor válido'); return; }
+
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  state.lancamentos.push({ cat, valor, desc, data: hoje });
+  saveLocal();
+
+  document.getElementById('novo-valor').value = '';
+  document.getElementById('novo-desc').value  = '';
+
+  renderCards();
+  renderBudget();
+  renderLancamentos();
+  showToast('✓ Gasto adicionado');
+}
+
+function delLancamento(i) {
+  state.lancamentos.splice(i, 1);
+  saveLocal();
+  renderCards();
+  renderBudget();
+  renderLancamentos();
+  showToast('Gasto removido');
+}
+
+// ── CONFIG MODAL ─────────────────────────────────────────────────────────────
+function openConfig() {
+  const { key, binId } = getConfig();
+  document.getElementById('jsonbin-key').value   = key;
+  document.getElementById('jsonbin-binid').value = binId;
+  document.getElementById('config-modal').classList.add('open');
+}
+function closeConfig() {
+  document.getElementById('config-modal').classList.remove('open');
+}
+function closeConfigOnOverlay(e) {
+  if (e.target === document.getElementById('config-modal')) closeConfig();
+}
+function saveConfig() {
+  const key   = document.getElementById('jsonbin-key').value.trim();
+  const binId = document.getElementById('jsonbin-binid').value.trim();
+  if (key) localStorage.setItem('jsonbin_key', key);
+  if (binId) localStorage.setItem('jsonbin_binid', binId);
+  closeConfig();
+  showToast('✓ Configuração salva');
+  if (binId) loadFromCloud();
+}
+
+// ── TOAST ────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+loadLocal();
+renderCatSelect();
+renderAll();
+loadFromCloud();
+</script>
+</body>
+</html>

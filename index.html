@@ -862,7 +862,13 @@ function renderBudget() {
         <div class="budget-bar-bg">
           <div class="budget-bar-fill" style="width:${pct}%;background:${cor}"></div>
         </div>
-        <div class="budget-orcamento">orçamento: ${fmt(orc)}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">orçamento:</span>
+          <input class="fixo-input" type="number" step="0.01" min="0"
+            value="${orc}"
+            style="width:110px;font-size:12px;padding:4px 8px"
+            oninput="state.orcamentos['${cat.id}']=parseFloat(this.value)||0; saveAndRecalc()">
+        </div>
       </div>
     `;
   }).join('');

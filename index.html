@@ -40,7 +40,7 @@
   .header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 20px 20px 16px;
+    padding: 10px 14px 10px;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -49,10 +49,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
   }
   .header h1 {
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 800;
     letter-spacing: -0.5px;
     color: var(--text);
@@ -89,25 +89,25 @@
   .cards {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 6px;
   }
   .card {
     background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px;
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
   }
   .card-label {
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
+    font-size: 9px;
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    margin-bottom: 6px;
+    margin-bottom: 3px;
   }
   .card-value {
     font-family: 'DM Mono', monospace;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 500;
     letter-spacing: -0.5px;
   }
@@ -528,6 +528,19 @@
   <div class="section-title">Gastos fixos</div>
   <div id="fixos-list"></div>
 
+  <!-- RESERVA -->
+  <div class="section-title" style="color:var(--red)">⚠ Observações</div>
+  <div class="renda-row" style="gap:8px;border-color:rgba(255,92,92,0.3);background:var(--red-dim)">
+    <input class="fixo-input" type="text" id="reserva-desc"
+      placeholder="ex: faltando R$ 36,00 no orçamento"
+      style="flex:1;width:auto;color:var(--red);font-size:13px;background:transparent;border-color:rgba(255,92,92,0.2)"
+      oninput="state.reserva.desc=this.value; saveAndRecalc()">
+    <input class="fixo-input" type="number" step="0.01" min="0" id="reserva-valor"
+      placeholder="0,00"
+      style="color:var(--red);background:transparent;border-color:rgba(255,92,92,0.2)"
+      oninput="state.reserva.valor=parseFloat(this.value)||0; saveAndRecalc()">
+  </div>
+
   <!-- ORÇAMENTO VARIÁVEIS -->
   <div class="section-title">Orçamento variáveis</div>
   <div id="budget-list"></div>
@@ -598,10 +611,11 @@ const CATS_FIXOS = [
 ];
 
 let state = {
-  renda: 1333,
+  renda: 1133,
   fixos: { seguro: 0, gasolina: 0, dizimo: 0, mei: 0 },
   orcamentos: { mercado: 350, lazer: 500, bota: 150, airbnb: 183, economia: 100 },
   lancamentos: [],
+  reserva: { desc: '', valor: 0 },
 };
 
 // ── LOCAL STORAGE ────────────────────────────────────────────────────────────
@@ -792,6 +806,10 @@ function renderCatSelect() {
 
 function renderAll() {
   document.getElementById('renda-input').value = state.renda || '';
+  const rd = document.getElementById('reserva-desc');
+  const rv = document.getElementById('reserva-valor');
+  if (rd) rd.value = state.reserva?.desc || '';
+  if (rv) rv.value = state.reserva?.valor || '';
   renderCards();
   renderFixos();
   renderBudget();

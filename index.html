@@ -603,56 +603,29 @@
   <!-- TAB: INÍCIO -->
   <div class="tab-panel active" id="tab-inicio">
 
-<<<<<<< HEAD
-  <!-- GASTOS FIXOS -->
-  <div class="section-title">Gastos fixos</div>
-  <div id="fixos-list"></div>
-
-  <!-- RESERVA -->
-  <div class="section-title" style="color:var(--red)">⚠ Observações</div>
-  <div class="renda-row" style="gap:8px;border-color:rgba(255,92,92,0.3);background:var(--red-dim)">
-    <input class="fixo-input" type="text" id="reserva-desc"
-      placeholder="ex: faltando R$ 36,00 no orçamento"
-      style="flex:1;width:auto;color:var(--red);font-size:13px;background:transparent;border-color:rgba(255,92,92,0.2)"
-      oninput="state.reserva.desc=this.value; saveAndRecalc()">
-    <input class="fixo-input" type="number" step="0.01" min="0" id="reserva-valor"
-      placeholder="0,00"
-      style="color:var(--red);background:transparent;border-color:rgba(255,92,92,0.2)"
-      oninput="state.reserva.valor=parseFloat(this.value)||0; saveAndRecalc()">
-  </div>
-
-  <!-- ORÇAMENTO VARIÁVEIS -->
-  <div class="section-title">Orçamento variáveis</div>
-  <div id="budget-list"></div>
-
-  <!-- NOVO GASTO -->
-  <div class="section-title">Lançar gasto</div>
-  <div class="add-form">
-    <div class="form-grid">
-      <div class="form-field">
-        <label>Categoria</label>
-        <select id="novo-cat"></select>
-      </div>
-      <div class="form-field">
-        <label>Valor (R$)</label>
-        <input type="number" id="novo-valor" placeholder="0,00" step="0.01" min="0">
-      </div>
-      <div class="form-field desc-field">
-        <label>Descrição (opcional)</label>
-        <input type="text" id="novo-desc" placeholder="ex: feira do sábado">
-      </div>
-=======
     <!-- RENDA -->
     <div class="section-title">Renda do mês</div>
     <div class="renda-row">
       <span class="renda-label">💵 Renda total</span>
       <input class="renda-input" type="number" id="renda-input" placeholder="1133.00" step="0.01" oninput="saveAndRecalc()">
->>>>>>> 5bc1e7085dc28d49aa3488e64c9505b9f49d3e32
     </div>
 
     <!-- GASTOS FIXOS -->
     <div class="section-title">Gastos fixos</div>
     <div id="fixos-list"></div>
+
+    <!-- OBSERVAÇÕES -->
+    <div class="section-title" style="color:var(--red)">⚠ Observações</div>
+    <div class="renda-row" style="gap:8px;border-color:rgba(255,92,92,0.3);background:var(--red-dim)">
+      <input class="fixo-input" type="text" id="reserva-desc"
+        placeholder="ex: faltando R$ 36,00 no orçamento"
+        style="flex:1;width:auto;color:var(--red);font-size:13px;background:transparent;border-color:rgba(255,92,92,0.2)"
+        oninput="state.reserva.desc=this.value; saveAndRecalc()">
+      <input class="fixo-input" type="number" step="0.01" min="0" id="reserva-valor"
+        placeholder="0,00"
+        style="color:var(--red);background:transparent;border-color:rgba(255,92,92,0.2)"
+        oninput="state.reserva.valor=parseFloat(this.value)||0; saveAndRecalc()">
+    </div>
 
     <!-- ORÇAMENTO VARIÁVEIS -->
     <div class="section-title">Orçamento variáveis</div>

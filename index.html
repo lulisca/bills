@@ -561,6 +561,139 @@
     font-weight: 500;
   }
 
+  /* ── GERENCIAR CATEGORIAS ── */
+  .cat-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .cat-item-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+  .cat-item-name {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cat-item-orc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .cat-item-del {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    transition: color .2s;
+    flex-shrink: 0;
+  }
+  .cat-item-del:hover { color: var(--red); }
+
+  .add-cat-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .add-cat-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+  .add-cat-row .form-field { flex: 1; min-width: 80px; }
+  .add-cat-row .form-field.emoji-field { flex: 0 0 60px; min-width: 60px; }
+  .add-cat-row .form-field.orc-field { flex: 0 0 100px; min-width: 100px; }
+  .add-cat-btn {
+    background: var(--green);
+    color: #0d0f14;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .2s;
+    flex-shrink: 0;
+  }
+  .add-cat-btn:hover { background: #25b568; }
+
+  .cat-type-toggle {
+    display: flex;
+    gap: 0;
+    margin-bottom: 14px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .cat-type-btn {
+    flex: 1;
+    background: var(--surface2);
+    border: none;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 10px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .cat-type-btn.active {
+    background: var(--green-dim);
+    color: var(--green);
+  }
+
+  /* ── MOBILE IMPROVEMENTS ── */
+  @media (max-width: 480px) {
+    .header { padding: 8px 10px; }
+    .header h1 { font-size: 14px; }
+    .cards { gap: 4px; }
+    .card { padding: 6px 8px; }
+    .card-label { font-size: 8px; margin-bottom: 2px; }
+    .card-value { font-size: 14px; }
+    .container { padding: 12px 10px; }
+    .section-title { font-size: 10px; margin: 18px 0 10px; }
+    .renda-row { padding: 10px; gap: 8px; }
+    .renda-label { font-size: 12px; }
+    .renda-input { font-size: 14px; width: 130px; padding: 6px 10px; }
+    .fixo-input { font-size: 13px; width: 100px; padding: 5px 8px; }
+    .budget-row { padding: 10px 12px; }
+    .budget-name { font-size: 13px; }
+    .budget-spent { font-size: 11px; }
+    .budget-remaining { font-size: 13px; }
+    .form-grid { gap: 8px; }
+    .form-field input, .form-field select { font-size: 13px; padding: 8px 10px; }
+    .add-btn { font-size: 13px; padding: 10px; }
+    .lancamento { padding: 10px 12px; gap: 8px; }
+    .lanc-desc { font-size: 13px; }
+    .lanc-meta { font-size: 10px; }
+    .lanc-valor { font-size: 14px; }
+    .nav-btn { font-size: 9px; padding: 8px 2px 6px; }
+    .nav-btn .nav-icon { font-size: 18px; }
+    .add-cat-row { flex-direction: column; }
+    .add-cat-row .form-field { width: 100%; }
+    .add-cat-row .form-field.emoji-field,
+    .add-cat-row .form-field.orc-field { flex: 1; }
+    .add-cat-btn { width: 100%; }
+  }
 
 </style>
 </head>
@@ -664,6 +797,38 @@
     <div id="resumo-list"></div>
   </div>
 
+  <!-- TAB: CATEGORIAS -->
+  <div class="tab-panel" id="tab-categorias">
+    <div class="section-title">Adicionar categoria</div>
+    <div class="add-cat-form">
+      <div class="cat-type-toggle">
+        <button class="cat-type-btn active" onclick="setCatType('variavel')">Variável</button>
+        <button class="cat-type-btn" onclick="setCatType('fixo')">Fixo</button>
+      </div>
+      <div class="add-cat-row">
+        <div class="form-field emoji-field">
+          <label>Emoji</label>
+          <input type="text" id="new-cat-emoji" placeholder="🛒" maxlength="4">
+        </div>
+        <div class="form-field">
+          <label>Nome</label>
+          <input type="text" id="new-cat-nome" placeholder="ex: Transporte">
+        </div>
+        <div class="form-field orc-field" id="orc-field-wrap">
+          <label>Orçamento</label>
+          <input type="number" id="new-cat-orc" placeholder="0,00" step="0.01" min="0">
+        </div>
+        <button class="add-cat-btn" onclick="addCategoria()">+ Adicionar</button>
+      </div>
+    </div>
+
+    <div class="section-title">Categorias variáveis</div>
+    <div id="cat-var-list"></div>
+
+    <div class="section-title">Categorias fixas</div>
+    <div id="cat-fix-list"></div>
+  </div>
+
 </div>
 
 <!-- BOTTOM NAV -->
@@ -676,6 +841,9 @@
   </button>
   <button class="nav-btn" id="nav-resumo" onclick="switchTab('resumo')">
     <span class="nav-icon">📊</span>resumo
+  </button>
+  <button class="nav-btn" id="nav-categorias" onclick="switchTab('categorias')">
+    <span class="nav-icon">🏷</span>categorias
   </button>
 </nav>
 
@@ -704,15 +872,17 @@
 
 <script>
 // ── ESTADO ──────────────────────────────────────────────────────────────────
-const CATS_VARIAVEIS = [
-  { id: 'mercado',  nome: '🛒 Mercado/Alimentação', orc: 350,  cor: '#5b8dee' },
-  { id: 'lazer',    nome: '🎉 Lazer',                orc: 500,  cor: '#a78bfa' },
-  { id: 'bota',     nome: '👢 Bota',                 orc: 120,  cor: '#f5a623' },
-  { id: 'airbnb',   nome: '✈️ Airbnb',               orc: 100,  cor: '#2dce7a' },
-  { id: 'economia', nome: '💾 Economia',              orc: 100,  cor: '#2dce7a' },
+const CORES_PADRAO = ['#5b8dee','#a78bfa','#f5a623','#2dce7a','#ff5c5c','#e879f9','#38bdf8','#fb923c'];
+
+const DEFAULT_CATS_VARIAVEIS = [
+  { id: 'mercado',  nome: '🛒 Mercado/Alimentação', cor: '#5b8dee' },
+  { id: 'lazer',    nome: '🎉 Lazer',                cor: '#a78bfa' },
+  { id: 'bota',     nome: '👢 Bota',                 cor: '#f5a623' },
+  { id: 'airbnb',   nome: '✈️ Airbnb',               cor: '#2dce7a' },
+  { id: 'economia', nome: '💾 Economia',              cor: '#2dce7a' },
 ];
 
-const CATS_FIXOS = [
+const DEFAULT_CATS_FIXOS = [
   { id: 'seguro',   nome: '🛡️ Seguro'   },
   { id: 'gasolina', nome: '⛽ Gasolina'  },
   { id: 'dizimo',   nome: '🙏 Dízimo'    },
@@ -725,7 +895,20 @@ let state = {
   orcamentos: { mercado: 350, lazer: 500, bota: 120, airbnb: 100, economia: 100 },
   lancamentos: [],
   reserva: { desc: '', valor: 0 },
+  catsVariaveis: null,
+  catsFixos: null,
 };
+
+function getCatsVariaveis() {
+  return state.catsVariaveis || DEFAULT_CATS_VARIAVEIS;
+}
+function getCatsFixos() {
+  return state.catsFixos || DEFAULT_CATS_FIXOS;
+}
+function ensureCatsInState() {
+  if (!state.catsVariaveis) state.catsVariaveis = JSON.parse(JSON.stringify(DEFAULT_CATS_VARIAVEIS));
+  if (!state.catsFixos) state.catsFixos = JSON.parse(JSON.stringify(DEFAULT_CATS_FIXOS));
+}
 
 // ── LOCAL STORAGE ────────────────────────────────────────────────────────────
 function loadLocal() {
@@ -845,20 +1028,20 @@ function renderCards() {
 
 function renderFixos() {
   const el = document.getElementById('fixos-list');
-  el.innerHTML = CATS_FIXOS.map(cat => `
+  el.innerHTML = getCatsFixos().map(cat => `
     <div class="renda-row">
       <span class="renda-label">${cat.nome}</span>
       <input class="fixo-input" type="number" step="0.01" min="0"
         value="${state.fixos[cat.id] || ''}"
         placeholder="0,00"
-        oninput="state.fixos['${cat.id}']=parseFloat(this.value)||0; saveAndRecalc()">
+        onchange="state.fixos['${cat.id}']=parseFloat(this.value)||0; saveAndRecalc()">
     </div>
   `).join('');
 }
 
 function renderBudget() {
   const el = document.getElementById('budget-list');
-  el.innerHTML = CATS_VARIAVEIS.map(cat => {
+  el.innerHTML = getCatsVariaveis().map(cat => {
     const orc   = state.orcamentos[cat.id] || 0;
     const gasto = gastosPorCat(cat.id);
     const rest  = orc - gasto;
@@ -881,7 +1064,7 @@ function renderBudget() {
           <input class="fixo-input" type="number" step="0.01" min="0"
             value="${orc}"
             style="width:110px;font-size:12px;padding:4px 8px"
-            oninput="state.orcamentos['${cat.id}']=parseFloat(this.value)||0; saveAndRecalc()">
+            onchange="state.orcamentos['${cat.id}']=parseFloat(this.value)||0; saveAndRecalc()">
         </div>
       </div>
     `;
@@ -897,7 +1080,7 @@ function renderLancamentos() {
   const sorted = [...state.lancamentos].reverse();
   el.innerHTML = sorted.map((l, ri) => {
     const i = state.lancamentos.length - 1 - ri;
-    const cat = CATS_VARIAVEIS.find(c => c.id === l.cat) || CATS_FIXOS.find(c => c.id === l.cat);
+    const cat = getCatsVariaveis().find(c => c.id === l.cat) || getCatsFixos().find(c => c.id === l.cat);
     return `
       <div class="lancamento">
         <div class="lanc-left">
@@ -915,7 +1098,7 @@ function renderLancamentos() {
 
 function renderCatSelect() {
   const sel = document.getElementById('novo-cat');
-  const allCats = [...CATS_FIXOS, ...CATS_VARIAVEIS];
+  const allCats = [...getCatsFixos(), ...getCatsVariaveis()];
   sel.innerHTML = allCats.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
 }
 
@@ -939,12 +1122,13 @@ function switchTab(tab) {
   document.getElementById('tab-' + tab).classList.add('active');
   document.getElementById('nav-' + tab).classList.add('active');
   if (tab === 'resumo') renderResumo();
+  if (tab === 'categorias') renderCategorias();
 }
 
 // ── ALERT BANNER ─────────────────────────────────────────────────────────────
 function renderAlert() {
   const renda = parseFloat(state.renda) || 0;
-  const totalOrc = CATS_VARIAVEIS.reduce((a, c) => a + (state.orcamentos[c.id] || 0), 0) + totalFixos();
+  const totalOrc = getCatsVariaveis().reduce((a, c) => a + (state.orcamentos[c.id] || 0), 0) + totalFixos();
   const meta = 100;
   const diff = totalOrc - (renda - meta);
   const el = document.getElementById('alert-diff');
@@ -970,7 +1154,7 @@ function renderResumo() {
   const rows = [
     { label: '💵 Renda', val: fmt(renda), cor: 'var(--blue)' },
     { label: '🔒 Fixos gastos', val: fmt(totalFixos()), cor: 'var(--red)' },
-    ...CATS_VARIAVEIS.map(c => ({
+    ...getCatsVariaveis().map(c => ({
       label: c.nome,
       val: `${fmt(gastosPorCat(c.id))} / ${fmt(state.orcamentos[c.id] || 0)}`,
       cor: 'var(--text)'
@@ -1060,10 +1244,102 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+// ── CATEGORIAS MANAGEMENT ────────────────────────────────────────────────
+let newCatType = 'variavel';
+
+function setCatType(type) {
+  newCatType = type;
+  document.querySelectorAll('.cat-type-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  const orcWrap = document.getElementById('orc-field-wrap');
+  orcWrap.style.display = type === 'variavel' ? '' : 'none';
+}
+
+function addCategoria() {
+  ensureCatsInState();
+  const emoji = document.getElementById('new-cat-emoji').value.trim() || '📌';
+  const nome = document.getElementById('new-cat-nome').value.trim();
+  if (!nome) { showToast('⚠ Digite um nome'); return; }
+
+  const id = nome.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'_').replace(/_+/g,'_');
+
+  if (newCatType === 'variavel') {
+    if (getCatsVariaveis().find(c => c.id === id)) { showToast('⚠ Categoria já existe'); return; }
+    const orc = parseFloat(document.getElementById('new-cat-orc').value) || 0;
+    const cor = CORES_PADRAO[state.catsVariaveis.length % CORES_PADRAO.length];
+    state.catsVariaveis.push({ id, nome: `${emoji} ${nome}`, cor });
+    state.orcamentos[id] = orc;
+  } else {
+    if (getCatsFixos().find(c => c.id === id)) { showToast('⚠ Categoria já existe'); return; }
+    state.catsFixos.push({ id, nome: `${emoji} ${nome}` });
+    state.fixos[id] = 0;
+  }
+
+  document.getElementById('new-cat-emoji').value = '';
+  document.getElementById('new-cat-nome').value = '';
+  document.getElementById('new-cat-orc').value = '';
+
+  saveLocal();
+  renderAll();
+  renderCatSelect();
+  renderCategorias();
+  showToast('✓ Categoria adicionada');
+  syncData();
+}
+
+function removeCategoria(type, id) {
+  ensureCatsInState();
+  const gastos = state.lancamentos.filter(l => l.cat === id);
+  if (gastos.length > 0) {
+    if (!confirm(`Essa categoria tem ${gastos.length} lançamento(s). Remover mesmo assim? Os lançamentos serão mantidos.`)) return;
+  }
+
+  if (type === 'variavel') {
+    state.catsVariaveis = state.catsVariaveis.filter(c => c.id !== id);
+    delete state.orcamentos[id];
+  } else {
+    state.catsFixos = state.catsFixos.filter(c => c.id !== id);
+    delete state.fixos[id];
+  }
+
+  saveLocal();
+  renderAll();
+  renderCatSelect();
+  renderCategorias();
+  showToast('Categoria removida');
+  syncData();
+}
+
+function renderCategorias() {
+  const varList = document.getElementById('cat-var-list');
+  const fixList = document.getElementById('cat-fix-list');
+  if (!varList || !fixList) return;
+
+  varList.innerHTML = getCatsVariaveis().map(cat => `
+    <div class="cat-item">
+      <div class="cat-item-left">
+        <span class="cat-item-name">${cat.nome}</span>
+        <span class="cat-item-orc">orc: ${fmt(state.orcamentos[cat.id] || 0)}</span>
+      </div>
+      <button class="cat-item-del" onclick="removeCategoria('variavel','${cat.id}')">✕</button>
+    </div>
+  `).join('');
+
+  fixList.innerHTML = getCatsFixos().map(cat => `
+    <div class="cat-item">
+      <div class="cat-item-left">
+        <span class="cat-item-name">${cat.nome}</span>
+      </div>
+      <button class="cat-item-del" onclick="removeCategoria('fixo','${cat.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
 // ── INIT ─────────────────────────────────────────────────────────────────────
 loadLocal();
 renderCatSelect();
 renderAll();
+renderCategorias();
 loadFromCloud();
 </script>
 </body>

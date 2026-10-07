@@ -115,6 +115,15 @@
   .card-value.red   { color: var(--red); }
   .card-value.gold  { color: var(--gold); }
   .card-value.blue  { color: var(--blue); }
+  .card-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed transparent;
+    padding: 0;
+    outline: none;
+  }
+  .card-input:hover, .card-input:focus { border-bottom-color: var(--muted); }
 
   /* ── MAIN CONTENT ── */
   .container { padding: 20px; }
@@ -732,7 +741,11 @@
       </div>
       <div class="card">
         <div class="card-label">Saldo livre</div>
-        <div class="card-value green" id="card-saldo">R$ 0</div>
+        <input class="card-value card-input green" id="card-saldo" type="text" inputmode="decimal"
+          title="Toque para editar. Apague para voltar ao cálculo automático."
+          onfocus="this.value = state.saldoManual != null ? String(state.saldoManual).replace('.', ',') : ''; this.placeholder = getSaldoCalculado().toFixed(2).replace('.', ',')"
+          oninput="setSaldoManual(this.value)"
+          onblur="renderCards()">
       </div>
       <div class="card">
         <div class="card-label">Economia</div>
@@ -911,6 +924,7 @@ let state = {
   orcamentos: { mercado: 350, lazer: 500, bota: 120, airbnb: 100, economia: 100 },
   lancamentos: [],
   reserva: { desc: '', valor: 0 },
+  saldoManual: null,
   catsVariaveis: null,
   catsFixos: null,
 };
@@ -932,6 +946,16 @@ function loadLocal() {
     const s = localStorage.getItem('grana_state');
     if (s) state = JSON.parse(s);
   } catch(e) {}
+  normalizeState();
+}
+
+// Garante campos que podem faltar em dados salvos por versões antigas
+function normalizeState() {
+  if (!state.reserva) state.reserva = { desc: '', valor: 0 };
+  if (!state.fixos) state.fixos = {};
+  if (!state.orcamentos) state.orcamentos = {};
+  if (!state.lancamentos) state.lancamentos = [];
+  if (state.saldoManual === undefined) state.saldoManual = null;
 }
 
 function saveLocal() {
@@ -946,7 +970,7 @@ function getConfig() {
   };
 }
 
-async function syncData() {
+async function syncData(silent = false) {
   const { key, binId } = getConfig();
   if (!key) { showToast('⚙ Configure o JSONBin primeiro'); openConfig(); return; }
 
@@ -979,7 +1003,7 @@ async function syncData() {
       localStorage.setItem('jsonbin_binid', data.metadata.id);
     }
 
-    showToast('✓ Salvo na nuvem');
+    if (!silent) showToast('✓ Salvo na nuvem');
     btn.innerHTML = '<span class="sync-dot"></span> salvo';
   } catch(e) {
     showToast('✗ Erro ao salvar');
@@ -987,9 +1011,19 @@ async function syncData() {
   }
 }
 
+let syncTimer = null;
+// Só libera o salvamento automático depois que os dados da nuvem foram carregados,
+// para não sobrescrever a nuvem com uma versão desatualizada deste aparelho.
+let cloudLoaded = false;
+function scheduleSync() {
+  if (!getConfig().key || !cloudLoaded) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => syncData(true), 1500);
+}
+
 async function loadFromCloud() {
   const { key, binId } = getConfig();
-  if (!key || !binId) return;
+  if (!key || !binId) { cloudLoaded = true; return; }
 
   try {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
@@ -998,11 +1032,17 @@ async function loadFromCloud() {
     const data = await res.json();
     if (data.record) {
       state = data.record;
+      normalizeState();
       saveLocal();
       renderAll();
       showToast('✓ Dados carregados da nuvem');
+      cloudLoaded = true;
+    } else {
+      showToast('⚠ Não carregou da nuvem — salvamento automático pausado');
     }
-  } catch(e) {}
+  } catch(e) {
+    showToast('⚠ Sem conexão com a nuvem — salvamento automático pausado');
+  }
 }
 
 // ── CÁLCULOS ─────────────────────────────────────────────────────────────────
@@ -1029,16 +1069,32 @@ function fmt(v) {
   return 'R$ ' + (parseFloat(v) || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
+function getSaldoCalculado() {
+  return (parseFloat(state.renda) || 0) - totalGasto();
+}
+
+function getSaldo() {
+  return state.saldoManual != null ? state.saldoManual : getSaldoCalculado();
+}
+
+function setSaldoManual(txt) {
+  let v = txt.trim();
+  if (v.includes(',')) v = v.replace(/\./g, '').replace(',', '.');
+  state.saldoManual = v === '' || isNaN(parseFloat(v)) ? null : parseFloat(v);
+  saveAndRecalc();
+}
+
 function renderCards() {
   const renda = parseFloat(state.renda) || 0;
   const gasto = totalGasto();
-  const saldo = renda - gasto;
+  const saldo = getSaldo();
   const eco   = gastosPorCat('economia');
 
   document.getElementById('card-renda').textContent   = fmt(renda);
   document.getElementById('card-gasto').textContent   = fmt(gasto);
-  document.getElementById('card-saldo').textContent   = fmt(saldo);
-  document.getElementById('card-saldo').className     = 'card-value ' + (saldo >= 0 ? 'green' : 'red');
+  const saldoEl = document.getElementById('card-saldo');
+  if (document.activeElement !== saldoEl) saldoEl.value = fmt(saldo);
+  saldoEl.className = 'card-value card-input ' + (saldo >= 0 ? 'green' : 'red');
   document.getElementById('card-economia').textContent = fmt(eco);
 }
 
@@ -1167,8 +1223,7 @@ function renderResumo() {
   const el = document.getElementById('resumo-list');
   if (!el) return;
   const renda = parseFloat(state.renda) || 0;
-  const gasto = totalGasto();
-  const saldo = renda - gasto;
+  const saldo = getSaldo();
   const rows = [
     { label: '💵 Renda', val: fmt(renda), cor: 'var(--blue)' },
     { label: '🔒 Fixos gastos', val: fmt(totalFixos()), cor: 'var(--red)' },
@@ -1192,6 +1247,7 @@ function saveAndRecalc() {
   const ri = document.getElementById('renda-input');
   if (ri) state.renda = parseFloat(ri.value) || 0;
   saveLocal();
+  scheduleSync();
   renderCards();
   renderBudget();
   renderAlert();

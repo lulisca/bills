@@ -1262,6 +1262,9 @@ function addLancamento() {
 
   const hoje = new Date().toLocaleDateString('pt-BR');
   state.lancamentos.push({ cat, valor, desc, data: hoje });
+  // Se o saldo foi editado manualmente, descontar o novo gasto dele também,
+  // para o saldo livre refletir o lançamento.
+  if (state.saldoManual != null) state.saldoManual = state.saldoManual - valor;
   saveLocal();
 
   document.getElementById('novo-valor').value = '';
@@ -1276,7 +1279,9 @@ function addLancamento() {
 }
 
 function delLancamento(i) {
+  const removido = state.lancamentos[i];
   state.lancamentos.splice(i, 1);
+  if (state.saldoManual != null && removido) state.saldoManual = state.saldoManual + removido.valor;
   saveLocal();
   renderCards();
   renderBudget();

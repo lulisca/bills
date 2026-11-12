@@ -1187,6 +1187,8 @@ function renderAll() {
   renderBudget();
   renderLancamentos();
   renderAlert();
+  renderCatSelect();
+  renderCategorias();
 }
 
 // ── TABS ─────────────────────────────────────────────────────────────────────
@@ -1360,8 +1362,6 @@ function addCategoria() {
 
   saveLocal();
   renderAll();
-  renderCatSelect();
-  renderCategorias();
   showToast('✓ Categoria adicionada');
   syncData();
 }
@@ -1383,8 +1383,6 @@ function removeCategoria(type, id) {
 
   saveLocal();
   renderAll();
-  renderCatSelect();
-  renderCategorias();
   showToast('Categoria removida');
   syncData();
 }
@@ -1416,9 +1414,7 @@ function renderCategorias() {
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 loadLocal();
-renderCatSelect();
 renderAll();
-renderCategorias();
 loadFromCloud();
 </script>
 </body>
